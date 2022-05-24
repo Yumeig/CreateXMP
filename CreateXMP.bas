@@ -1,8 +1,9 @@
 Attribute VB_Name = "CreateXMP"
 Sub CreateXMP()
 
-Dim tmpSpeed As Single
-Dim tmpSpeed_up As Single
+Dim tmpDelayTime As Single
+Dim tmpDuration As Single
+Dim tmpDuration_up As Single
 Dim tmpTypa As Integer
 Dim tmpTypa_up As Integer
 Dim i As Integer
@@ -20,23 +21,25 @@ Dim file As String
 For i = 1 To ActivePresentation.Slides.Count
 
     For j = 1 To ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Count
-        tmpSpeed = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.Duration
+    
+        tmpDelayTime = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.TriggerDelayTime
+        tmpDuration = tmpDelayTime + ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.Duration
         tmpType = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.TriggerType
         
         '上一元素动画时长及类型
         If j <> 1 Then
-            tmpSpeed_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.Duration
+            tmpDuration_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.Duration
             tmpType_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.TriggerType
         End If
 
         '类型2 上一项同时，取动画时间最长的
         If tmpType = 2 Then
-            If tmpSpeed > tmpSpeed_up And tmpSpeed > emax Then
-                emax = tmpSpeed
+            If tmpDuration > tmpDuration_up And tmpDuration > emax Then
+                emax = tmpDuration
             End If
             
             If tmpType_up = 1 Then
-                e = e - tmpSpeed_up + emax
+                e = e - tmpDuration_up + emax
             Else
                 e = emax
             End If
@@ -44,17 +47,17 @@ For i = 1 To ActivePresentation.Slides.Count
         
         '类型1 点击
         If tmpType = 1 Then
-            e = e + tmpSpeed
+            e = e + tmpDuration
             '重置emax
             emax = 0
         End If
         
         '类型3 上一项后
         If tmpType = 3 Then
-            e = e + tmpSpeed
+            e = e + tmpDuration
         End If
         
-        Debug.Print e; emax; tmpSpeed; tmpSpeed_up
+        Debug.Print e; emax; tmpDuration; tmpDuration_up
     Next j
     
     '幻灯片时长问题(与创建视频每页时间相关)
@@ -83,7 +86,7 @@ For i = 1 To ActivePresentation.Slides.Count
     Chr(10) & "<rdf:li>" _
     & Chr(10) & "<rdf:Description" _
     & Chr(10) & "xmpDM:startTime = " & Chr$(34) & list(i) * 30 & Chr$(34) _
-    & Chr(10) & "xmpDM:Duration = " & Chr$(34) & list(i) - list(i - 1) & Chr$(34) _
+    & Chr(10) & "xmpDM:Duration = ""0""" _
     & Chr(10) & "xmpDM:name= " & Chr$(34) & i & Chr$(34) & ">" _
     & Chr(10) & "</rdf:Description>" _
     & Chr(10) & "</rdf:li>"
