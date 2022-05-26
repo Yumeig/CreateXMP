@@ -39,7 +39,10 @@ For i = 1 To ActivePresentation.Slides.Count
         tmpType = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.TriggerType
         tmpDelayTime = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.TriggerDelayTime
         tmpDuration = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.Duration
-        tmpRepeatTime = (ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount - 1) * tmpDuration
+        If ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount <> 0 Then
+            tmpRepeatTime = (ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount - 1) * tmpDuration
+        End IF
+        
         tmpMaster = tmpDelayTime + tmpDuration + tmpRepeatTime
         
         '加上文本逐字动画时长(文字之间延迟 50%) 这里应获取形状索引对应动画索引(未实现，所以这里手动调整层级对应动画索引)
