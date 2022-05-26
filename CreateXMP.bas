@@ -1,3 +1,4 @@
+Attribute VB_Name = "CreateXMP"
 Sub CreateXMP()
 
 Dim tmpDelayTime As Single
@@ -8,7 +9,7 @@ Dim tmpTypa As Integer
 Dim tmpTextBoxDuration As Single
 Dim i As Integer
 Dim j As Integer
-Dim e As Single 'æ€»æ—¶é•¿
+Dim e As Single '×ÜÊ±³¤
 Dim emax As Single
 Dim template_marker As String
 Dim xmp_template As String
@@ -18,12 +19,12 @@ Dim file As String
 'Main
 For i = 1 To ActivePresentation.Slides.Count
 
-    'åŠ å…¥å¹»ç¯ç‰‡åˆ‡æ¢æ—¶é—´(æ’é™¤æ•ˆæœâ€œæ— â€)
+    '¼ÓÈë»ÃµÆÆ¬ÇĞ»»Ê±¼ä(ÅÅ³ıĞ§¹û¡°ÎŞ¡±)
     If ActivePresentation.Slides(i).SlideShowTransition.EntryEffect <> 0 Then
         e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration
     End If
     
-    'åŠ å…¥åˆ‡æ¢æ ‡è®°
+    '¼ÓÈëÇĞ»»±ê¼Ç
     template_marker = template_marker + _
     Chr(10) & "<rdf:li>" _
     & Chr(10) & "<rdf:Description" _
@@ -41,17 +42,17 @@ For i = 1 To ActivePresentation.Slides.Count
         tmpDuration = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.Duration
         If ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount <> 0 Then
             tmpRepeatTime = (ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount - 1) * tmpDuration
-        End IF
-        
+        End If
+
         tmpMaster = tmpDelayTime + tmpDuration + tmpRepeatTime
         
-        'åŠ ä¸Šæ–‡æœ¬é€å­—åŠ¨ç”»æ—¶é•¿(æ–‡å­—ä¹‹é—´å»¶è¿Ÿ 50%) è¿™é‡Œåº”è·å–å½¢çŠ¶ç´¢å¼•å¯¹åº”åŠ¨ç”»ç´¢å¼•(æœªå®ç°ï¼Œæ‰€ä»¥è¿™é‡Œæ‰‹åŠ¨è°ƒæ•´å±‚çº§å¯¹åº”åŠ¨ç”»ç´¢å¼•)
+        '¼ÓÉÏÎÄ±¾Öğ×Ö¶¯»­Ê±³¤(ÎÄ×ÖÖ®¼äÑÓ³Ù 50%) ÕâÀïÓ¦»ñÈ¡ĞÎ×´Ë÷Òı¶ÔÓ¦¶¯»­Ë÷Òı(Î´ÊµÏÖ£¬ËùÒÔÕâÀïÊÖ¶¯µ÷Õû²ã¼¶¶ÔÓ¦¶¯»­Ë÷Òı)
         If ActivePresentation.Slides(i).TimeLine.MainSequence(j).EffectInformation.TextUnitEffect = 1 Then
-            tmpTextBoxDuration = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.Duration * 0.5 * (ActivePresentation.Slides(i).Shapes(j).TextFrame.TextRange.Length - 1) 'å‡å»ä¸€ä¸ªå­—ç¬¦
+            tmpTextBoxDuration = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.Duration * 0.5 * (ActivePresentation.Slides(i).Shapes(j).TextFrame.TextRange.Length - 1) '¼õÈ¥Ò»¸ö×Ö·û
             tmpMaster = tmpMaster + tmpTextBoxDuration
         End If
 
-        'ä¸Šä¸€å…ƒç´ åŠ¨ç”»æ—¶é•¿åŠç±»å‹
+        'ÉÏÒ»ÔªËØ¶¯»­Ê±³¤¼°ÀàĞÍ
         If j <> 1 Then
             tmpType_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.TriggerType
             tmpDelayTime_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.TriggerDelayTime
@@ -60,7 +61,7 @@ For i = 1 To ActivePresentation.Slides.Count
             tmpMaster_up = tmpDelayTime_up + tmpDuration_up + tmpRepeatTime_up
         End If
 
-        'ç±»å‹2 ä¸Šä¸€é¡¹åŒæ—¶ï¼Œå–åŠ¨ç”»æ—¶é—´æœ€é•¿çš„
+        'ÀàĞÍ2 ÉÏÒ»ÏîÍ¬Ê±£¬È¡¶¯»­Ê±¼ä×î³¤µÄ
         If tmpType = 2 Then
             If tmpMaster > tmpMaster_up Then
                 If tmpMaster > emax Then
@@ -70,14 +71,14 @@ For i = 1 To ActivePresentation.Slides.Count
             End If
         End If
         
-        'ç±»å‹1 ç‚¹å‡»
+        'ÀàĞÍ1 µã»÷
         If tmpType = 1 Then
             e = e + tmpMaster
-            'é‡ç½®emax
+            'ÖØÖÃemax
             emax = 0
         End If
         
-        'ç±»å‹3 ä¸Šä¸€é¡¹å
+        'ÀàĞÍ3 ÉÏÒ»Ïîºó
         If tmpType = 3 Then
             e = e + tmpMaster
         End If
@@ -85,8 +86,8 @@ For i = 1 To ActivePresentation.Slides.Count
         Debug.Print e; emax; tmpMaster; tmpMaster_up
         
         'ASCII Chr() https://baike.baidu.com/item/Chr/580328
-        'å­—ç¬¦ä¸²æœ«ä½åŠ "_"ä¹¦å†™æ¢è¡Œ(æœ‰ä¸Šé™)
-        'æ³¨æ„pptåˆ›å»ºæ˜¯30å¸§1ç§’
+        '×Ö·û´®Ä©Î»¼Ó"_"ÊéĞ´»»ĞĞ(ÓĞÉÏÏŞ)
+        '×¢Òâppt´´½¨ÊÇ30Ö¡1Ãë
         template_marker = template_marker + _
         Chr(10) & "<rdf:li>" _
         & Chr(10) & "<rdf:Description" _
@@ -98,22 +99,22 @@ For i = 1 To ActivePresentation.Slides.Count
         
     Next j
     
-    'åˆ›å»ºè§†é¢‘å¹»ç¯ç‰‡æ¯å¼ æ—¶é—´(å·²å¼ƒï¼Œè¯·è®¾ç½®ä¸º0ç§’ï¼‰
-    'å› åˆ›å»ºè§†é¢‘ä¼šå‡è¡¡åŠ¨ç”»æ—¶é•¿åˆ†å¸ƒåˆ°5så†…ï¼Œå¯¼è‡´æ ‡è®°ä¸å‡†ç¡®
+    '´´½¨ÊÓÆµ»ÃµÆÆ¬Ã¿ÕÅÊ±¼ä(ÒÑÆú£¬ÇëÉèÖÃÎª0Ãë£©
+    'Èç¶¯»­Ê±¼äĞ¡ÓÚ5s£¬´´½¨ÊÓÆµ»á¾ùºâ¶¯»­Ê±³£·Ö²¼µ½5sÄÚ£¬µ¼ÖÂ±ê¼Ç²»×¼È·
     'Dim list(364) As Single
     'Dim f As Single
     'list(i) = e
-    'f = list(i) - list(i - 1) 'æ±‚å½“é¡µåŠ¨ç”»æ—¶é•¿
+    'f = list(i) - list(i - 1) 'Çóµ±Ò³¶¯»­Ê±³¤
     'If f < 5 Then
         'e = e + 5 - f
         'Debug.Print "not"; f
     'End If
     
-    'å˜æ›´å€¼
+    '±ä¸üÖµ
     'list(i) = e
     
-    'æå–å•é¡µæ—¶é—´
-    Debug.Print "ç¬¬"; i; "é¡µ"; e; "ç§’"
+    'ÌáÈ¡µ¥Ò³Ê±¼ä
+    Debug.Print "µÚ"; i; "Ò³"; e; "Ãë"
 
 Next i
 
@@ -145,7 +146,7 @@ xmp_template = _
 & Chr(10) & "</rdf:Bag>" & Chr(10) & "</xmpDM:Tracks>" & Chr(10) & "</rdf:Description>" & Chr(10) & "</rdf:RDF>" & Chr(10) & "</x:xmpmeta>" _
 & Chr(10) & "<?xpacket end=""w""?>"
 
-'æ–‡ä»¶å¯¼å‡º
+'ÎÄ¼şµ¼³ö
 'file = VBA.Replace(ActivePresentation.FullName, ".pptm", "") & ".xmp"
 file = VBA.Split(ActivePresentation.FullName, ".")(0) & ".xmp"
 
