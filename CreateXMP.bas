@@ -22,7 +22,7 @@ For i = 1 To ActivePresentation.Slides.Count
 
     '加入幻灯片切换时间(排除效果“无”) 每切换下一个幻灯片会有2fps误差,加 2/30fps = 0.067s
     If ActivePresentation.Slides(i).SlideShowTransition.EntryEffect <> 0 Then
-        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration + 0.06
+        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration + 0.067
     End If
     
     '加入切换标记
