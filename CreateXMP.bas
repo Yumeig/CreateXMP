@@ -1,11 +1,12 @@
 Attribute VB_Name = "CreateXMP"
 Sub CreateXMP()
 
+Dim tmpTypa As Integer
 Dim tmpDelayTime As Single
 Dim tmpDuration As Single
 Dim tmpRepeatTime As Single
 Dim tmpMaster As Single
-Dim tmpTypa As Integer
+Dim tmpMaster_up As Single
 Dim tmpTextBoxDuration As Single
 Dim i As Integer
 Dim j As Integer
@@ -19,9 +20,9 @@ Dim file As String
 'Main
 For i = 1 To ActivePresentation.Slides.Count
 
-    '加入幻灯片切换时间(排除效果“无”)
+    '加入幻灯片切换时间(排除效果“无”) 每切换下一个幻灯片会有2fps误差,加 2/30fps = 0.067s
     If ActivePresentation.Slides(i).SlideShowTransition.EntryEffect <> 0 Then
-        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration
+        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration + 0.06
     End If
     
     '加入切换标记
@@ -35,13 +36,14 @@ For i = 1 To ActivePresentation.Slides.Count
     & Chr(10) & "</rdf:li>"
     
     
-    For j = 1 To ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Count
+    For j = 1 To ActivePresentation.Slides(i).TimeLine.MainSequence.Count
         
-        tmpType = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.TriggerType
-        tmpDelayTime = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.TriggerDelayTime
-        tmpDuration = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.Duration
-        If ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount <> 0 Then
-            tmpRepeatTime = (ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j).Timing.RepeatCount - 1) * tmpDuration
+        tmpIndex = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Index
+        tmpType = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.TriggerType
+        tmpDelayTime = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.TriggerDelayTime
+        tmpDuration = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.Duration
+        If ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.RepeatCount <> 0 Then
+            tmpRepeatTime = (ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.RepeatCount - 1) * tmpDuration
         End If
 
         tmpMaster = tmpDelayTime + tmpDuration + tmpRepeatTime
@@ -49,15 +51,18 @@ For i = 1 To ActivePresentation.Slides.Count
         '加上文本逐字动画时长(文字之间延迟 50%) 这里应获取形状索引对应动画索引(未实现，所以这里手动调整层级对应动画索引)
         If ActivePresentation.Slides(i).TimeLine.MainSequence(j).EffectInformation.TextUnitEffect = 1 Then
             tmpTextBoxDuration = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.Duration * 0.5 * (ActivePresentation.Slides(i).Shapes(j).TextFrame.TextRange.Length - 1) '减去一个字符
+            If VBA.Split(tmpTextBoxDuration, ".5")(0) + 1 <> CInt(tmpTextBoxDuration + 1) Then '利用该方法判断，等于两位小数的加0.05凑整
+                tmpTextBoxDuration = tmpTextBoxDuration + 0.05
+            End If
             tmpMaster = tmpMaster + tmpTextBoxDuration
         End If
 
         '上一元素动画时长及类型
         If j <> 1 Then
-            tmpType_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.TriggerType
-            tmpDelayTime_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.TriggerDelayTime
-            tmpDuration_up = ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.Duration
-            tmpRepeatTime_up = (ActivePresentation.Slides.Item(i).TimeLine.MainSequence.Item(j - 1).Timing.RepeatCount - 1) * tmpDuration_up
+            tmpType_up = ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.TriggerType
+            tmpDelayTime_up = ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.TriggerDelayTime
+            tmpDuration_up = ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.Duration
+            tmpRepeatTime_up = (ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.RepeatCount - 1) * tmpDuration_up
             tmpMaster_up = tmpDelayTime_up + tmpDuration_up + tmpRepeatTime_up
         End If
 
