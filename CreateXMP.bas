@@ -15,14 +15,19 @@ Dim emax As Single
 Dim template_marker As String
 Dim xmp_template As String
 Dim file As String
-  
-  
+
+
 'Main
 For i = 1 To ActivePresentation.Slides.Count
 
-    '加入幻灯片切换时间(排除效果“无”) 每切换下一个幻灯片会有2fps误差,加 2/30fps = 0.067s
+    '加入幻灯片切换时间(排除效果“无”)
     If ActivePresentation.Slides(i).SlideShowTransition.EntryEffect <> 0 Then
-        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration + 0.67
+        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration
+    End If
+    
+    '每切换下一个幻灯片会有2fps多误差,加 2/30fps = 0.066s(并且与帧率有关，请根据导出视频时常，来更改此值缩短误差)
+    If i <> 1 Then
+        e = e + 0.066 '30.303fps 0.1s, 62.5fps 0.066s
     End If
     
     '加入切换标记
@@ -50,10 +55,10 @@ For i = 1 To ActivePresentation.Slides.Count
             
             '加上文本逐字动画时长(文字之间延迟 50%)
             If .EffectInformation.TextUnitEffect = 1 Then
-                tmpTextBoxDuration = .Timing.Duration * 0.5 * (.Shape.TextFrame.TextRange.Length - 1) '减去一个字符
-                If VBA.Split(tmpTextBoxDuration, ".5")(0) <> CInt(tmpTextBoxDuration - 0.1) Then '利用该方法判断，整数和0.5的小数不加0.05
-                    tmpTextBoxDuration = tmpTextBoxDuration + 0.05
-                End If
+                tmpTextBoxDuration = .Timing.Duration * 0.5 * (VBA.Len(VBA.Replace(.Shape.TextFrame.TextRange.Text, " ", "")) - 1) '去掉字符串空格，并减去一个字符长度
+                'If VBA.Split(tmpTextBoxDuration, ".5")(0) <> CInt(tmpTextBoxDuration - 0.1) Then '利用该方法判断，整数和0.5的小数不加0.05(已弃，测试实际是会保留两位小数进行计算的)
+                    'tmpTextBoxDuration = tmpTextBoxDuration + 0.05
+                'End If
                 tmpMaster = tmpMaster + tmpTextBoxDuration
             End If
         End With
@@ -92,6 +97,8 @@ For i = 1 To ActivePresentation.Slides.Count
         '类型3 上一项后
         If tmpType = 3 Then
             e = e + tmpMaster
+            '重置emax
+            emax = 0
         End If
 
         Debug.Print e; emax; tmpMaster; tmpMaster_up
