@@ -15,14 +15,14 @@ Dim emax As Single
 Dim template_marker As String
 Dim xmp_template As String
 Dim file As String
-
-
+  
+  
 'Main
 For i = 1 To ActivePresentation.Slides.Count
 
     '加入幻灯片切换时间(排除效果“无”) 每切换下一个幻灯片会有2fps误差,加 2/30fps = 0.067s
     If ActivePresentation.Slides(i).SlideShowTransition.EntryEffect <> 0 Then
-        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration + 0.067
+        e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration + 0.67
     End If
     
     '加入切换标记
@@ -34,36 +34,42 @@ For i = 1 To ActivePresentation.Slides.Count
     & Chr(10) & "xmpDM:name= " & Chr$(34) & i & Chr$(34) & ">" _
     & Chr(10) & "</rdf:Description>" _
     & Chr(10) & "</rdf:li>"
-    
+
     
     For j = 1 To ActivePresentation.Slides(i).TimeLine.MainSequence.Count
         
-        tmpIndex = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Index
-        tmpType = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.TriggerType
-        tmpDelayTime = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.TriggerDelayTime
-        tmpDuration = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.Duration
-        If ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.RepeatCount <> 0 Then
-            tmpRepeatTime = (ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.RepeatCount - 1) * tmpDuration
-        End If
-
-        tmpMaster = tmpDelayTime + tmpDuration + tmpRepeatTime
-        
-        '加上文本逐字动画时长(文字之间延迟 50%) 这里应获取形状索引对应动画索引(未实现，所以这里手动调整层级对应动画索引)
-        If ActivePresentation.Slides(i).TimeLine.MainSequence(j).EffectInformation.TextUnitEffect = 1 Then
-            tmpTextBoxDuration = ActivePresentation.Slides(i).TimeLine.MainSequence(j).Timing.Duration * 0.5 * (ActivePresentation.Slides(i).Shapes(j).TextFrame.TextRange.Length - 1) '减去一个字符
-            If VBA.Split(tmpTextBoxDuration, ".5")(0) + 1 <> CInt(tmpTextBoxDuration + 1) Then '利用该方法判断，等于两位小数的加0.05凑整
-                tmpTextBoxDuration = tmpTextBoxDuration + 0.05
+        With ActivePresentation.Slides(i).TimeLine.MainSequence(j)
+            tmpType = .Timing.TriggerType
+            tmpDelayTime = .Timing.TriggerDelayTime
+            tmpDuration = .Timing.Duration
+            If .Timing.RepeatCount <> 0 Then
+                tmpRepeatTime = (.Timing.RepeatCount - 1) * tmpDuration
             End If
-            tmpMaster = tmpMaster + tmpTextBoxDuration
-        End If
 
+            tmpMaster = tmpDelayTime + tmpDuration + tmpRepeatTime
+            
+            '加上文本逐字动画时长(文字之间延迟 50%)
+            If .EffectInformation.TextUnitEffect = 1 Then
+                tmpTextBoxDuration = .Timing.Duration * 0.5 * (.Shape.TextFrame.TextRange.Length - 1) '减去一个字符
+                If VBA.Split(tmpTextBoxDuration, ".5")(0) <> CInt(tmpTextBoxDuration - 0.1) Then '利用该方法判断，整数和0.5的小数不加0.05
+                    tmpTextBoxDuration = tmpTextBoxDuration + 0.05
+                End If
+                tmpMaster = tmpMaster + tmpTextBoxDuration
+            End If
+        End With
+        
         '上一元素动画时长及类型
         If j <> 1 Then
-            tmpType_up = ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.TriggerType
-            tmpDelayTime_up = ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.TriggerDelayTime
-            tmpDuration_up = ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.Duration
-            tmpRepeatTime_up = (ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1).Timing.RepeatCount - 1) * tmpDuration_up
-            tmpMaster_up = tmpDelayTime_up + tmpDuration_up + tmpRepeatTime_up
+            With ActivePresentation.Slides(i).TimeLine.MainSequence(j - 1)
+                tmpType_up = .Timing.TriggerType
+                tmpDelayTime_up = .Timing.TriggerDelayTime
+                tmpDuration_up = .Timing.Duration
+                If .Timing.RepeatCount <> 0 Then
+                    tmpRepeatTime_up = (.Timing.RepeatCount - 1) * tmpDuration_up
+                End If
+                
+                tmpMaster_up = tmpDelayTime_up + tmpDuration_up + tmpRepeatTime_up
+            End With
         End If
 
         '类型2 上一项同时，取动画时间最长的
@@ -72,7 +78,7 @@ For i = 1 To ActivePresentation.Slides.Count
                 If tmpMaster > emax Then
                     emax = tmpMaster
                 End If
-                e = emax
+                e = e - tmpMaster_up + emax
             End If
         End If
         
@@ -87,7 +93,7 @@ For i = 1 To ActivePresentation.Slides.Count
         If tmpType = 3 Then
             e = e + tmpMaster
         End If
-        
+
         Debug.Print e; emax; tmpMaster; tmpMaster_up
         
         'ASCII Chr() https://baike.baidu.com/item/Chr/580328
@@ -105,7 +111,7 @@ For i = 1 To ActivePresentation.Slides.Count
     Next j
     
     '创建视频幻灯片每张时间(已弃，请设置为0秒）
-    '如动画时间小于5s，创建视频会均衡动画时常分布到5s内，导致标记不准确
+    '因创建视频会均衡动画时常分布到5s内，导致标记不准确
     'Dim list(364) As Single
     'Dim f As Single
     'list(i) = e
