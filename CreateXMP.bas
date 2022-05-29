@@ -25,9 +25,9 @@ For i = 1 To ActivePresentation.Slides.Count
         e = e + ActivePresentation.Slides(i).SlideShowTransition.Duration
     End If
     
-    '每切换下一个幻灯片会有2fps多误差,加 2/30fps = 0.066s(并且与帧率有关，请根据导出视频时常，来更改此值缩短误差)
+    '每切换下一个幻灯片会有2fps多误差,加 2/30fps = 0.066s(并且与帧率有关，请根据导出视频时长，来更改此值缩短误差)
     If i <> 1 Then
-        e = e + 0.066 '30.303fps 0.1s, 62.5fps 0.066s
+        e = e + 0.066 '30.303fps 0.133s, 62.5fps 0.066s
     End If
     
     '加入切换标记
@@ -82,8 +82,8 @@ For i = 1 To ActivePresentation.Slides.Count
             If tmpMaster > tmpMaster_up Then
                 If tmpMaster > emax Then
                     emax = tmpMaster
+                    e = e - tmpMaster_up + emax
                 End If
-                e = e - tmpMaster_up + emax
             End If
         End If
         
@@ -91,14 +91,14 @@ For i = 1 To ActivePresentation.Slides.Count
         If tmpType = 1 Then
             e = e + tmpMaster
             '重置emax
-            emax = 0
+            emax = tmpMaster
         End If
         
         '类型3 上一项后
         If tmpType = 3 Then
             e = e + tmpMaster
             '重置emax
-            emax = 0
+            emax = tmpMaster
         End If
 
         Debug.Print e; emax; tmpMaster; tmpMaster_up
@@ -118,7 +118,7 @@ For i = 1 To ActivePresentation.Slides.Count
     Next j
     
     '创建视频幻灯片每张时间(已弃，请设置为0秒）
-    '因创建视频会均衡动画时常分布到5s内，导致标记不准确
+    '因创建视频会均衡动画时长分布到5s内，导致标记不准确
     'Dim list(364) As Single
     'Dim f As Single
     'list(i) = e
