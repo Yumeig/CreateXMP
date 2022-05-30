@@ -7,6 +7,7 @@ Dim tmpDuration As Single
 Dim tmpRepeatTime As Single
 Dim tmpMaster As Single
 Dim tmpMaster_up As Single
+Dim tmpTextBoxStr As String
 Dim tmpTextBoxDuration As Single
 Dim i As Integer
 Dim j As Integer
@@ -32,13 +33,13 @@ For i = 1 To ActivePresentation.Slides.Count
     
     '加入切换标记
     template_marker = template_marker + _
-    Chr(10) & "<rdf:li>" _
-    & Chr(10) & "<rdf:Description" _
-    & Chr(10) & "xmpDM:startTime = " & Chr$(34) & e * 30 & Chr$(34) _
-    & Chr(10) & "xmpDM:Duration = ""0""" _
-    & Chr(10) & "xmpDM:name= " & Chr$(34) & i & Chr$(34) & ">" _
-    & Chr(10) & "</rdf:Description>" _
-    & Chr(10) & "</rdf:li>"
+    vbLf & "<rdf:li>" _
+    & vbLf & "<rdf:Description" _
+    & vbLf & "xmpDM:startTime = " & Chr$(34) & e * 30 & Chr$(34) _
+    & vbLf & "xmpDM:Duration = ""0""" _
+    & vbLf & "xmpDM:name= " & Chr$(34) & i & Chr$(34) & ">" _
+    & vbLf & "</rdf:Description>" _
+    & vbLf & "</rdf:li>"
 
     
     For j = 1 To ActivePresentation.Slides(i).TimeLine.MainSequence.Count
@@ -55,7 +56,8 @@ For i = 1 To ActivePresentation.Slides.Count
             
             '加上文本逐字动画时长(文字之间延迟 50%)
             If .EffectInformation.TextUnitEffect = 1 Then
-                tmpTextBoxDuration = .Timing.Duration * 0.5 * (VBA.Len(VBA.Replace(.Shape.TextFrame.TextRange.Text, " ", "")) - 1) '去掉字符串空格，并减去一个字符长度
+                tmpTextBoxStr = VBA.Replace(VBA.Replace(VBA.Replace(.Shape.TextFrame.TextRange.Text, " ", ""), vbTab, ""), vbCr, "")
+                tmpTextBoxDuration = .Timing.Duration * 0.5 * (VBA.Len(tmpTextBoxStr) - 1) '减去一个字符长度
                 'If VBA.Split(tmpTextBoxDuration, ".5")(0) <> CInt(tmpTextBoxDuration - 0.1) Then '利用该方法判断，整数和0.5的小数不加0.05(已弃，测试实际是会保留两位小数进行计算的)
                     'tmpTextBoxDuration = tmpTextBoxDuration + 0.05
                 'End If
@@ -107,13 +109,13 @@ For i = 1 To ActivePresentation.Slides.Count
         '字符串末位加"_"书写换行(有上限)
         '注意ppt创建是30帧1秒
         template_marker = template_marker + _
-        Chr(10) & "<rdf:li>" _
-        & Chr(10) & "<rdf:Description" _
-        & Chr(10) & "xmpDM:startTime = " & Chr$(34) & e * 30 & Chr$(34) _
-        & Chr(10) & "xmpDM:Duration = ""0""" _
-        & Chr(10) & "xmpDM:name= " & Chr$(34) & i & Chr$(34) & ">" _
-        & Chr(10) & "</rdf:Description>" _
-        & Chr(10) & "</rdf:li>"
+        vbLf & "<rdf:li>" _
+        & vbLf & "<rdf:Description" _
+        & vbLf & "xmpDM:startTime = " & Chr(34) & e * 30 & Chr(34) _
+        & vbLf & "xmpDM:Duration = ""0""" _
+        & vbLf & "xmpDM:name= " & Chr(34) & i & Chr$(34) & ">" _
+        & vbLf & "</rdf:Description>" _
+        & vbLf & "</rdf:li>"
         
     Next j
     
@@ -140,29 +142,29 @@ Next i
 'XMP
 xmp_template = _
 "<?xpacket begin=""?"" id=""W5M0MpCehiHzreSzNTczkc9d""?>" _
-& Chr(10) & "<x:xmpmeta xmlns:x=""adobe:ns:meta/"" x:xmptk=""Adobe XMP Core 5.6-c137 79.159768, 2016/08/11-13:24:42"">" _
-& Chr(10) & "<rdf:RDF xmlns:rdf=""http://www.w3.org/1999/02/22-rdf-syntax-ns#"">" _
-& Chr(10) & "<rdf:Description rdf:about=""""" _
-& Chr(10) & "xmlns:xmp=""http://ns.adobe.com/xap/1.0/""" _
-& Chr(10) & "xmlns:xmpDM=""http://ns.adobe.com/xmp/1.0/DynamicMedia/""" _
-& Chr(10) & "xmlns:xmpMM=""http://ns.adobe.com/xap/1.0/mm/""" _
-& Chr(10) & "xmlns:stEvt=""http://ns.adobe.com/xap/1.0/sType/ResourceEvent#"">" _
-& Chr(10) & "<xmpDM:Tracks>" _
-& Chr(10) & "<rdf:Bag>" _
-& Chr(10) & "<rdf:li>" _
-& Chr(10) & "<rdf:Description" _
-& Chr(10) & "xmpDM:trackName=""Comment""" _
-& Chr(10) & "xmpDM:trackType =""Comment""" _
-& Chr(10) & "xmpDM:frameRate=""f30"">" _
-& Chr(10) & "<xmpDM:markers>" _
-& Chr(10) & "<rdf:Seq>" _
+& vbLf & "<x:xmpmeta xmlns:x=""adobe:ns:meta/"" x:xmptk=""Adobe XMP Core 5.6-c137 79.159768, 2016/08/11-13:24:42"">" _
+& vbLf & "<rdf:RDF xmlns:rdf=""http://www.w3.org/1999/02/22-rdf-syntax-ns#"">" _
+& vbLf & "<rdf:Description rdf:about=""""" _
+& vbLf & "xmlns:xmp=""http://ns.adobe.com/xap/1.0/""" _
+& vbLf & "xmlns:xmpDM=""http://ns.adobe.com/xmp/1.0/DynamicMedia/""" _
+& vbLf & "xmlns:xmpMM=""http://ns.adobe.com/xap/1.0/mm/""" _
+& vbLf & "xmlns:stEvt=""http://ns.adobe.com/xap/1.0/sType/ResourceEvent#"">" _
+& vbLf & "<xmpDM:Tracks>" _
+& vbLf & "<rdf:Bag>" _
+& vbLf & "<rdf:li>" _
+& vbLf & "<rdf:Description" _
+& vbLf & "xmpDM:trackName=""Comment""" _
+& vbLf & "xmpDM:trackType =""Comment""" _
+& vbLf & "xmpDM:frameRate=""f30"">" _
+& vbLf & "<xmpDM:markers>" _
+& vbLf & "<rdf:Seq>" _
 & template_marker _
-& Chr(10) & "</rdf:Seq>" _
-& Chr(10) & "</xmpDM:markers>" _
-& Chr(10) & "</rdf:Description>" _
-& Chr(10) & "</rdf:li>" _
-& Chr(10) & "</rdf:Bag>" & Chr(10) & "</xmpDM:Tracks>" & Chr(10) & "</rdf:Description>" & Chr(10) & "</rdf:RDF>" & Chr(10) & "</x:xmpmeta>" _
-& Chr(10) & "<?xpacket end=""w""?>"
+& vbLf & "</rdf:Seq>" _
+& vbLf & "</xmpDM:markers>" _
+& vbLf & "</rdf:Description>" _
+& vbLf & "</rdf:li>" _
+& vbLf & "</rdf:Bag>" & vbLf & "</xmpDM:Tracks>" & vbLf & "</rdf:Description>" & vbLf & "</rdf:RDF>" & vbLf & "</x:xmpmeta>" _
+& vbLf & "<?xpacket end=""w""?>"
 
 '文件导出
 'file = VBA.Replace(ActivePresentation.FullName, ".pptm", "") & ".xmp"
