@@ -27,9 +27,9 @@ For i = 1 To ActivePresentation.Slides.Count
     End If
     
     '每切换下一个幻灯片会有2fps多误差,加 2/30fps = 0.066s(并且与帧率有关，请根据导出视频时长，来更改此值缩短误差)
-    If i <> 1 Then
+    'If i <> 1 Then
         e = e + 0.066 '30.303fps 0.133s, 62.5fps 0.066s
-    End If
+    'End If
     
     '加入切换标记
     template_marker = template_marker + _
