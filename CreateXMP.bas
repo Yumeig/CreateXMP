@@ -41,6 +41,8 @@ For i = 1 To ActivePresentation.Slides.Count
     & vbLf & "</rdf:Description>" _
     & vbLf & "</rdf:li>"
 
+    '重置dValue
+    dValue = 0
     
     For j = 1 To ActivePresentation.Slides(i).TimeLine.MainSequence.Count
         
@@ -81,11 +83,17 @@ For i = 1 To ActivePresentation.Slides.Count
 
         '类型2 上一项同时，取动画时间最长的
         If tmpType = 2 Then
+            If tmpMaster < tmpMaster_up Then
+                dValue = emax - tmpMaster '差值
+            End If
+            
             If tmpMaster > tmpMaster_up Then
                 If tmpMaster > emax Then
                     emax = tmpMaster
-                    e = e - tmpMaster_up + emax
+                    e = e - (tmpMaster_up + dValue) + emax
                 End If
+                '重置dValue
+                dValue = 0
             End If
         End If
         
